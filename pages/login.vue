@@ -28,6 +28,7 @@ export default {
       return localStorage.getItem('tw_accessToken') || null;
     },
     getAuthUrl: function() {
+      console.log(this.client_id, this.redirect_url, this.base_url);
       if (!(this.client_id || this.redirect_url || this.base_url)) {
         throw new Error("Environement variables empty");
       }
