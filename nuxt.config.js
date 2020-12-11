@@ -43,6 +43,10 @@ export default {
     '@nuxt/content',
   ],
 
+  router: {
+    middleware: ['authenticated']
+  },
+
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
   axios: {},
 
