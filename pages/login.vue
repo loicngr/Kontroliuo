@@ -14,6 +14,7 @@
 
 <script>
 export default {
+  middleware: null,
   data() {
     return {
       base_url: process.env.NUXT_ENV_API_BASE_URL || null,
@@ -23,7 +24,10 @@ export default {
     }
   },
   computed: {
-    getAuthUrl() {
+    getAccessToken: function() {
+      return localStorage.getItem('tw_accessToken') || null;
+    },
+    getAuthUrl: function() {
       if (!(this.client_id || this.redirect_url || this.base_url)) {
         throw new Error("Environement variables empty");
       }
@@ -39,46 +43,67 @@ export default {
   methods: {
     getUser(access_token) {
       return new Promise((res, rej) => {
-        fetch('https://api.twitch.tv/helix/users', {
+        this.$axios.$get('https://api.twitch.tv/helix/users', { 
+          progress: true,
           headers: {
             Authorization: 'Bearer ' + access_token,
             'Client-Id': this.client_id,
-          },
-        })
-          .then((response) => response.json())
-          .then((data) => res(data))
-          .catch((err) => rej(err))
+          }
+        }).then((response) => res(response))
+        .catch((err) => rej(err));
       })
     },
+    authUser(access_token) {
+      /**
+       * Get twitch user information with Access Token in URL
+       */
+      this.getUser(access_token)
+        .then((response) => {
+          if (!response?.data) return;
+          const userData = response.data[0];
+          if (!userData?.login) return;
+
+          /**
+           * User successful loggedIn
+           */
+          this.$store.commit('auth/isAuthenticated', true);
+          localStorage.setItem('tw_accessToken', access_token);
+          this.$store.commit('user/setUser', userData);
+          
+          this.$router.push({name: 'index'});
+        })
+        .catch((err) => {
+          /**
+           * Error when get user informations
+           * 
+           * Delete all data about user login
+           */
+          console.log(err);
+          this.$store.commit('auth/isAuthenticated', false);
+          localStorage.removeItem('tw_accessToken');
+          this.$store.commit('user/setUser', {});
+        })
+    }
   },
   mounted() {
     /**
-     * Check URL
+     * Get Twitch access token on LocalStorage
      */
-    if (!window.location.hash) return;
-    let url = window.location.href.replace('/login#', '?');
-    url = new URL(url);
+    const localAccessToken = this.getAccessToken;
+    if (!window.location.hash && localAccessToken) {
+      this.authUser(localAccessToken);
+    } else {
+      let url = window.location.href.replace('/login#', '?');
+      url = new URL(url);
 
-    /**
-     * Get Access token in URL
-     */
-    const urlParams = new URLSearchParams(url.search);
-    const access_token = urlParams.get('access_token');
-    if (!access_token) return;
-
-    /**
-     * Get twitch user information with Access Token in URL
-     */
-    this.getUser(access_token)
-      .then((response) => {
-        if (!response?.data) return;
-        const data = response.data[0];
-        const userLogin = data?.login;
-        if (!userLogin) return;
-        this.$emit('twitchAuthSuccess', userLogin);
-        // TODO: Redirect to index page with user information on params
-      })
-      .catch((err) => console.log(err))
+      /**
+       * Get Access token in URL
+       */
+      const urlParams = new URLSearchParams(url.search);
+      const access_token = urlParams.get('access_token');
+      if (!access_token) return;
+      this.authUser(access_token);
+    }
   },
 }
 </script>
