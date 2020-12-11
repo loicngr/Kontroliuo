@@ -4,7 +4,6 @@ import Vuex from "vuex"
 require('dotenv').config();
 
 describe('store', () => {
-
     const localVue = createLocalVue();
     localVue.use(Vuex);
     let NuxtStore;
@@ -19,8 +18,11 @@ describe('store', () => {
     })
 })
 
+/**
+ * Test if twitch auth url is correctly assembled with env vars
+ */
 describe('Twitch auth URL', () => {
-    const finalURL = process.env.NUXT_ENV_API_BASE_URL + 'client_id=' +process.env.NUXT_ENV_API_CLIENT_ID + '&redirect_uri=' + encodeURIComponent(process.env.NUXT_ENV_API_REDIRECT_URL) + '&response_type=token&scope=';
+    const finalURL = process.env.NUXT_ENV_API_BASE_URL + 'client_id=' +process.env.NUXT_ENV_API_CLIENT_ID + '&redirect_uri=' + encodeURIComponent(process.env.NUXT_ENV_API_REDIRECT_URL) + '&response_type=token&scope=' + encodeURIComponent(process.env.NUXT_ENV_API_SCOPES);
     const wrapper = mount(Login);
     test('twitch auth url', () => {
         expect(wrapper.vm.getAuthUrl).toEqual(finalURL);

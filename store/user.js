@@ -3,7 +3,13 @@ export const state = () => ({
 });
 
 export const mutations = {
-    setUser(state, value) {
-      state.user = value;
-    }
+  setUser(state, value) {
+    state.user = value;
+  }
+}
+
+export const getters = {
+  user(state) {
+    return state.user;
+  }
 }
