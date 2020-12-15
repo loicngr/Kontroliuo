@@ -24,7 +24,7 @@ export default {
       client_id: process.env.NUXT_ENV_API_CLIENT_ID || null,
       redirect_url: process.env.NUXT_ENV_API_REDIRECT_URL || null,
       scopes: process.env.NUXT_ENV_API_SCOPES || '',
-      asLoadAuth: false,
+      asLoadAuth: true,
     }
   },
   computed: {
@@ -96,7 +96,6 @@ export default {
      * Else ...
      */
     if (!window.location.hash && localAccessToken) {
-      this.asLoadAuth = true
       this.authUser(localAccessToken)
     } else {
       let url = window.location.href.replace('/login#', '?')
@@ -107,9 +106,11 @@ export default {
        */
       const urlParams = new URLSearchParams(url.search)
       const access_token = urlParams.get('access_token')
-      if (!access_token) return
+      if (!access_token) {
+        this.asLoadAuth = false;
+        return;
+      }
 
-      this.asLoadAuth = true
       this.authUser(access_token)
     }
   },
