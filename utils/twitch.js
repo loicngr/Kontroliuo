@@ -3,7 +3,7 @@
  * @param {{channelId: string, authToken: string, clientId: string, $axios: axios}} param0
  * @returns {Promise} return promise
  */
-function getModeratorsByChannelId({ channelId, authToken, clientId, $axios }) {
+function getModerators({ channelId, authToken, clientId, $axios }) {
   return new Promise((res, rej) => {
     $axios
       .$get(
@@ -20,6 +20,49 @@ function getModeratorsByChannelId({ channelId, authToken, clientId, $axios }) {
       .then((response) => res(response))
       .catch((err) => rej(err))
   })
+}
+
+/**
+ * Returns all user subs
+ * @param {{channelId: string, authToken: string, clientId: string, $axios: axios, cursor: null|string}} param0 
+ * @returns {Promise} return promise
+ */
+function getSubscribers({ channelId, authToken, clientId, $axios, cursor, cb }) {
+  let url = 'https://api.twitch.tv/helix/subscriptions?broadcaster_id=' + channelId + '&first=100';
+  url += (cursor)? '&after=' + cursor : '';
+
+  cb = (!cb)? [] : cb;
+
+  return new Promise((res, rej) => {
+    $axios
+      .$get(url, {
+        progress: true,
+        headers: {
+          Authorization: 'Bearer ' + authToken,
+          'Client-Id': clientId,
+        },
+      })
+      .then(async (responseA) => {
+        let subs = cb.concat(responseA.data);
+        let afterCursor = responseA.pagination.cursor;
+
+        if (responseA.data.length < 100) return res(subs);
+
+        /**
+         * Loop in to twitch api pagination
+         */
+        const subSubs = await getSubscribers({
+          channelId: channelId, 
+          authToken: authToken, 
+          clientId: clientId, 
+          $axios: $axios,
+          cursor: afterCursor,
+          cb: subs
+        });
+        return res(subSubs);
+      })
+      .catch((err) => rej(err));
+  });
 }
 
 /**
@@ -85,4 +128,4 @@ function getUserFollows({ channelId, authToken, clientId, $axios, cursor, cb }) 
   });
 }
 
-export { getModeratorsByChannelId, getUser, getUserFollows }
+export { getModerators, getUser, getUserFollows, getSubscribers }

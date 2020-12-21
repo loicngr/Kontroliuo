@@ -9,9 +9,39 @@
 </template>
 
 <script>
+import {
+  getModerators as U_getModerators,
+  getSubscribers as U_getSubscribers
+} from '@/utils/twitch.js';
+
 export default {
+  data() {
+    return {
+      client_id: process.env.NUXT_ENV_API_CLIENT_ID || null,
+      channel_id: process.env.NUXT_ENV_BROADCASTER_ID || null,
+      auth_token: localStorage.getItem('tw_accessToken') || null
+    }
+  },
+  computed: {
+    user() {
+      return this.$store.getters['user/user'];
+    }
+  },
   mounted() {
-    console.log(this.$store.getters['user/user'])
+    console.log(this.user);
+    U_getModerators({
+      channelId: this.channel_id, 
+      authToken: this.auth_token, 
+      clientId: this.client_id, 
+      $axios: this.$axios
+    }).then((response) => console.log(response));
+
+    getSubscribers({
+      channelId: this.channel_id, 
+      authToken: this.auth_token, 
+      clientId: this.client_id, 
+      $axios: this.$axios
+    }).then((response) => console.log(response));
   }
 }
 </script>

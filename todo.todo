@@ -1,0 +1,17 @@
+# User authentication 
+✔ Login Vue page @started(20-12-21 08:46) @done(20-12-21 08:46) @lasted(30s)
+✔ Twitch auth button @started(20-12-21 08:46) @done(20-12-21 08:46) @lasted(35s)
+✔ Catch twitch user access token @started(20-12-21 08:46) @done(20-12-21 08:46) @lasted(35s)
+✔ Get user information by access token @started(20-12-21 08:46) @done(20-12-21 08:46) @lasted(36s)
+✔ Create login test @started(20-12-21 08:47) @done(20-12-21 08:47) @lasted(22s)
+✔ Save user information in store @started(20-12-21 08:51) @done(20-12-21 08:51) @lasted(52s)
+
+# Dashboard
+☐ Navigation menu
+☐ Twitch Overlay's component
+
+# Twitch Api
+✔ Get all user followers @started(20-12-15 09:00) @done(20-12-21 09:14) @lasted(6d14m59s)
+✔ Get all user subscribers @started(20-12-21 09:28) @done(20-12-21 09:48) @lasted(20m52s)
+☐ Get all user banned
+✔ Get all user moderator @started(20-12-21 09:20) @done(20-12-21 09:26) @lasted(6m46s)
